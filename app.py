@@ -1,8 +1,25 @@
 import streamlit as st
 import pandas as pd
 
+# --- Pantalla de acceso (contraseña simple) ---
+def password_gate():
+    st.markdown("## 🔒 Acceso restringido")
+    password = st.text_input("Ingrese la contraseña:", type="password")
+    if password == "MiClave123":  # <-- Cambia aquí tu contraseña personal
+        st.success("Acceso concedido ✅")
+        return True
+    elif password == "":
+        return False
+    else:
+        st.error("Contraseña incorrecta ❌")
+        return False
+
 # Configurar página
 st.set_page_config(page_title="Análisis de Gastos", page_icon="📊", layout="wide")
+
+# Verificar acceso antes de mostrar la app
+if not password_gate():
+    st.stop()
 
 # Encabezado principal elegante
 st.markdown("""
@@ -36,53 +53,5 @@ if uploaded_file is not None:
         st.metric(label="Total de Gastos", value=f"${total_gastos:,.2f}")
 
     with col2:
-        num_sucursales = df['Sucursal'].nunique()
-        st.metric(label="Número de Sucursales", value=num_sucursales)
-
-    st.divider()
-
-    # Sección de filtros
-    st.subheader('🛠️ Filtros de Análisis')
-
-    # Limpiar datos de sucursal para evitar errores
-    sucursales_disponibles = df['Sucursal'].dropna().unique().tolist()
-    sucursales_disponibles = sorted(sucursales_disponibles)
-
-    sucursal_seleccionada = st.selectbox('Selecciona una Sucursal:', options=['Todas'] + sucursales_disponibles)
-    monto_minimo = st.number_input('Monto mínimo para mostrar', min_value=0, value=5000, step=500)
-
-    # Aplicar filtros
-    if sucursal_seleccionada != 'Todas':
-        df_filtrado = df[(df['Sucursal'] == sucursal_seleccionada) & (df['Monto'] >= monto_minimo)]
-    else:
-        df_filtrado = df[df['Monto'] >= monto_minimo]
-
-    st.divider()
-
-    # Mostrar Gastos Críticos filtrados
-    st.subheader('🚨 Gastos Críticos Filtrados')
-    gastos_criticos_ordenados = df_filtrado.sort_values(by=['Sucursal', 'Monto'], ascending=[True, False])
-
-    st.dataframe(gastos_criticos_ordenados, use_container_width=True)
-
-    st.divider()
-
-    # Descargar reporte filtrado
-    def convertir_excel(df):
-        from io import BytesIO
-        output = BytesIO()
-        with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            df.to_excel(writer, index=False)
-        return output.getvalue()
-
-    st.download_button(
-        label="💾 Descargar Reporte Filtrado",
-        data=convertir_excel(gastos_criticos_ordenados),
-        file_name='Reporte_Gastos_Filtrado.xlsx',
-        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        use_container_width=True
-    )
-
-else:
-    st.info('📝 Por favor sube un archivo Excel para iniciar.')
+        num_sucursales =_
 
