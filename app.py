@@ -1,12 +1,13 @@
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 
 # --- Pantalla de acceso (contraseña simple editable) ---
 def password_gate():
     st.markdown("## 🔒 Acceso restringido")
     
     # CONTRASEÑA ACTUAL --> cámbiala aquí si quieres
-    password_correcto = "Daniela300680"  # 🔥 Cambia aquí tu contraseña personal
+    password_correcto = "MiClave123"  # 🔥 Cambia aquí tu contraseña personal
 
     password = st.text_input("Ingrese la contraseña:", type="password")
     
@@ -86,6 +87,27 @@ if uploaded_file is not None:
     gastos_criticos_ordenados = df_filtrado.sort_values(by=['Sucursal', 'Monto'], ascending=[True, False])
 
     st.dataframe(gastos_criticos_ordenados, use_container_width=True)
+
+    st.divider()
+
+    # --- Gráfico de Barras: Top 10 Sucursales por monto ---
+    st.subheader('📊 Top 10 Sucursales por Monto de Gastos')
+
+    # Agrupar y ordenar
+    top_sucursales = df_filtrado.groupby('Sucursal')['Monto'].sum().sort_values(ascending=False).head(10).reset_index()
+
+    # Crear gráfico de barras
+    fig = px.bar(
+        top_sucursales,
+        x='Sucursal',
+        y='Monto',
+        title='Top 10 Sucursales con Mayor Monto de Gastos',
+        labels={'Monto': 'Monto Total', 'Sucursal': 'Sucursal'},
+        text_auto=True
+    )
+
+    # Mostrar gráfico
+    st.plotly_chart(fig, use_container_width=True)
 
     st.divider()
 
