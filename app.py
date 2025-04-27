@@ -27,7 +27,7 @@ if uploaded_file is not None:
 
     st.divider()
 
-    # Resumen general con columnas
+    # Resumen general
     st.subheader('📈 Resumen General')
     col1, col2 = st.columns(2)
 
@@ -41,16 +41,28 @@ if uploaded_file is not None:
 
     st.divider()
 
-    # Gastos críticos (mayores a $5,000)
-    st.subheader('🚨 Gastos Críticos por Sucursal')
-    gastos_criticos = df[df['Monto'] >= 5000]
-    gastos_criticos_ordenados = gastos_criticos.sort_values(by=['Sucursal', 'Monto'], ascending=[True, False])
+    # Sección de filtros
+    st.subheader('🛠️ Filtros de Análisis')
+    sucursal_seleccionada = st.selectbox('Selecciona una Sucursal:', options=['Todas'] + sorted(df['Sucursal'].unique().tolist()))
+    monto_minimo = st.number_input('Monto mínimo para mostrar', min_value=0, value=5000, step=500)
+
+    # Aplicar filtros
+    if sucursal_seleccionada != 'Todas':
+        df_filtrado = df[(df['Sucursal'] == sucursal_seleccionada) & (df['Monto'] >= monto_minimo)]
+    else:
+        df_filtrado = df[df['Monto'] >= monto_minimo]
+
+    st.divider()
+
+    # Mostrar Gastos Críticos filtrados
+    st.subheader('🚨 Gastos Críticos Filtrados')
+    gastos_criticos_ordenados = df_filtrado.sort_values(by=['Sucursal', 'Monto'], ascending=[True, False])
 
     st.dataframe(gastos_criticos_ordenados, use_container_width=True)
 
     st.divider()
 
-    # Descargar reporte
+    # Descargar reporte filtrado
     def convertir_excel(df):
         from io import BytesIO
         output = BytesIO()
@@ -59,11 +71,12 @@ if uploaded_file is not None:
         return output.getvalue()
 
     st.download_button(
-        label="💾 Descargar Reporte de Gastos Críticos",
+        label="💾 Descargar Reporte Filtrado",
         data=convertir_excel(gastos_criticos_ordenados),
-        file_name='Reporte_Gastos_Criticos.xlsx',
+        file_name='Reporte_Gastos_Filtrado.xlsx',
         mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         use_container_width=True
     )
 else:
     st.info('📝 Por favor sube un archivo Excel para iniciar.')
+
