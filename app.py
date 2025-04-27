@@ -19,7 +19,15 @@ def password_gate():
         st.error("Contraseña incorrecta ❌")
         return False
 
-# Configurar página
-st.set_page_config(page_title="An_
+# Configurar página (CORREGIDO)
+st.set_page_config(page_title="Análisis de Gastos", page_icon="📊", layout="wide")
 
-                   
+# Verificar acceso antes de mostrar la app
+if not password_gate():
+    st.stop()
+
+# Encabezado principal elegante
+st.markdown("""
+    <h1 style='text-align: center; color: #4CAF50;'>📊 Mini WebApp de Gastos</h1>
+    <h3 style='text-align: center;'>Análisis Automático de Gastos por Sucursal</h3>
+""", unsafe_allow_html=True)
