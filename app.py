@@ -7,7 +7,7 @@ def password_gate():
     st.markdown("## 🔒 Acceso restringido")
     
     # CONTRASEÑA ACTUAL --> cámbiala aquí si quieres
-    password_correcto = "MiClave123"  # 🔥 Cambia aquí tu contraseña personal
+    password_correcto = "Daniela300680"  # 🔥 Cambia aquí tu contraseña personal
 
     password = st.text_input("Ingrese la contraseña:", type="password")
     
