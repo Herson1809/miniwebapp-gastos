@@ -42,20 +42,22 @@ if uploaded_file is not None:
     st.divider()
 
     # Sección de filtros
-st.subheader('🛠️ Filtros de Análisis')
+    st.subheader('🛠️ Filtros de Análisis')
 
-# Limpiar datos de sucursal para evitar errores
-sucursales_disponibles = df['Sucursal'].dropna().unique().tolist()
-sucursales_disponibles = sorted(sucursales_disponibles)
+    # Limpiar datos de sucursal para evitar errores
+    sucursales_disponibles = df['Sucursal'].dropna().unique().tolist()
+    sucursales_disponibles = sorted(sucursales_disponibles)
 
-sucursal_seleccionada = st.selectbox('Selecciona una Sucursal:', options=['Todas'] + sucursales_disponibles)
-monto_minimo = st.number_input('Monto mínimo para mostrar', min_value=0, value=5000, step=500)
+    sucursal_seleccionada = st.selectbox('Selecciona una Sucursal:', options=['Todas'] + sucursales_disponibles)
+    monto_minimo = st.number_input('Monto mínimo para mostrar', min_value=0, value=5000, step=500)
 
-# Aplicar filtros
-if sucursal_seleccionada != 'Todas':
-    df_filtrado = df[(df['Sucursal'] == sucursal_seleccionada) & (df['Monto'] >= monto_minimo)]
-else:
-    df_filtrado = df[df['Monto'] >= monto_minimo]
+    # Aplicar filtros
+    if sucursal_seleccionada != 'Todas':
+        df_filtrado = df[(df['Sucursal'] == sucursal_seleccionada) & (df['Monto'] >= monto_minimo)]
+    else:
+        df_filtrado = df[df['Monto'] >= monto_minimo]
+
+    st.divider()
 
     # Mostrar Gastos Críticos filtrados
     st.subheader('🚨 Gastos Críticos Filtrados')
@@ -80,6 +82,7 @@ else:
         mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         use_container_width=True
     )
+
 else:
     st.info('📝 Por favor sube un archivo Excel para iniciar.')
 
