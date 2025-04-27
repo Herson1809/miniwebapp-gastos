@@ -125,7 +125,7 @@ if uploaded_file is not None:
 
     if not df_sospechosos.empty:
         st.warning(f"🚨 Se detectaron {len(df_sospechosos)} transacciones sospechosas:")
-        st.dataframe(df_sospechosos[['Sucursal', 'Monto', 'Categoria_Limpia', 'Sub Categoria', 'Riesgo']], use_container_width=True)
+        st.dataframe(df_sospechosos[['Sucursal', 'Monto', 'Riesgo']], use_container_width=True)
     else:
         st.success("✅ No se detectaron transacciones sospechosas.")
 
@@ -149,4 +149,3 @@ if uploaded_file is not None:
 
 else:
     st.info('📝 Por favor sube un archivo Excel para iniciar.')
-
