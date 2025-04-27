@@ -2,13 +2,22 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# Función de seguridad para contraseña
+# --- Pantalla de acceso (contraseña fija) ---
 def password_gate():
-    password = st.text_input('**Ingresa la contraseña**', type='password')
-    if password == "Daniela300680":
+    st.markdown("## 🔒 Acceso restringido")
+    
+    # Aquí está tu clave fija
+    password_correcto = "Daniela300680"  # 🔥 Cambié la contraseña a la que me diste
+
+    password = st.text_input("Ingrese la contraseña:", type="password")
+    
+    if password == password_correcto:
+        st.success("Acceso concedido ✅")
         return True
+    elif password == "":
+        return False
     else:
-        st.error("🚫 Contraseña incorrecta.")
+        st.error("Contraseña incorrecta ❌")
         return False
 
 # Configurar página
@@ -18,7 +27,7 @@ st.set_page_config(page_title="Análisis de Gastos", page_icon="📊", layout="w
 if not password_gate():
     st.stop()
 
-# Encabezado principal
+# Encabezado principal elegante
 st.markdown("""
     <h1 style='text-align: center; color: #4CAF50;'>📊 Mini WebApp de Gastos</h1>
     <h3 style='text-align: center;'>Análisis Automático de Gastos por Sucursal</h3>
@@ -53,24 +62,24 @@ if uploaded_file is not None:
     # Agrupar los datos por mes y calcular el total de cada mes
     gastos_por_mes = df.groupby('Mes')['Monto'].sum().reset_index()
 
-    # Mostrar los valores de cada mes sin color en los recuadros
+    # Mostrar los valores de cada mes en columnas con fondo de color claro
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
         enero = gastos_por_mes[gastos_por_mes['Mes'] == '2025-01']['Monto'].sum() if '2025-01' in gastos_por_mes['Mes'].values else 0
-        st.write(f"Enero: ${enero:,.2f}")
+        st.markdown(f'<div style="background-color: #f2f2f2; padding: 20px; border-radius: 8px;">Enero: ${enero:,.2f}</div>', unsafe_allow_html=True)
 
     with col2:
         febrero = gastos_por_mes[gastos_por_mes['Mes'] == '2025-02']['Monto'].sum() if '2025-02' in gastos_por_mes['Mes'].values else 0
-        st.write(f"Febrero: ${febrero:,.2f}")
+        st.markdown(f'<div style="background-color: #f2f2f2; padding: 20px; border-radius: 8px;">Febrero: ${febrero:,.2f}</div>', unsafe_allow_html=True)
 
     with col3:
         marzo = gastos_por_mes[gastos_por_mes['Mes'] == '2025-03']['Monto'].sum() if '2025-03' in gastos_por_mes['Mes'].values else 0
-        st.write(f"Marzo: ${marzo:,.2f}")
+        st.markdown(f'<div style="background-color: #f2f2f2; padding: 20px; border-radius: 8px;">Marzo: ${marzo:,.2f}</div>', unsafe_allow_html=True)
 
     with col4:
         abril = gastos_por_mes[gastos_por_mes['Mes'] == '2025-04']['Monto'].sum() if '2025-04' in gastos_por_mes['Mes'].values else 0
-        st.write(f"Abril: ${abril:,.2f}")
+        st.markdown(f'<div style="background-color: #f2f2f2; padding: 20px; border-radius: 8px;">Abril: ${abril:,.2f}</div>', unsafe_allow_html=True)
 
     st.divider()
 
@@ -143,14 +152,6 @@ if uploaded_file is not None:
         st.success("✅ No se detectaron transacciones sospechosas.")
 
     st.divider()
-
-    # --- Mostrar gastos recomendados para revisar ---
-    st.subheader('📊 Bloque de Gastos Recomendados para Revisar')
-
-    # Establecer un umbral para los gastos que se recomienda revisar
-    umbral_gasto = 1000000  # Cambiar a tu criterio, por ejemplo, 1 millón
-
-    mostrar_gastos_revisar(df, umbral_gasto)
 
     # Descargar reporte filtrado
     def convertir_excel(df):
