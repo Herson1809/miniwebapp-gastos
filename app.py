@@ -153,6 +153,16 @@ if uploaded_file is not None:
 
     st.divider()
 
+    # Mostrar los 10 gastos más críticos
+    st.subheader('🔥 Los 10 Gastos Más Críticos')
+
+    # Mostrar los 10 gastos más críticos según el monto
+    df_criticos = df_auditoria.nlargest(10, 'Monto')
+
+    st.dataframe(df_criticos[['Sucursal', 'Categoria_Limpia', 'Monto', 'Riesgo']], use_container_width=True)
+
+    st.divider()
+
     # Descargar reporte filtrado
     def convertir_excel(df):
         from io import BytesIO
