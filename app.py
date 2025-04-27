@@ -67,19 +67,19 @@ if uploaded_file is not None:
 
     with col1:
         enero = gastos_por_mes[gastos_por_mes['Mes'] == '2025-01']['Monto'].sum() if '2025-01' in gastos_por_mes['Mes'].values else 0
-        st.markdown(f'<div style="background-color: #f2f2f2; padding: 20px; border-radius: 8px;">Enero: ${enero:,.2f}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="background-color: #f2f2f2; padding: 20px; border-radius: 8px; text-align:center;">Enero: ${enero:,.2f}</div>', unsafe_allow_html=True)
 
     with col2:
         febrero = gastos_por_mes[gastos_por_mes['Mes'] == '2025-02']['Monto'].sum() if '2025-02' in gastos_por_mes['Mes'].values else 0
-        st.markdown(f'<div style="background-color: #f2f2f2; padding: 20px; border-radius: 8px;">Febrero: ${febrero:,.2f}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="background-color: #f2f2f2; padding: 20px; border-radius: 8px; text-align:center;">Febrero: ${febrero:,.2f}</div>', unsafe_allow_html=True)
 
     with col3:
         marzo = gastos_por_mes[gastos_por_mes['Mes'] == '2025-03']['Monto'].sum() if '2025-03' in gastos_por_mes['Mes'].values else 0
-        st.markdown(f'<div style="background-color: #f2f2f2; padding: 20px; border-radius: 8px;">Marzo: ${marzo:,.2f}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="background-color: #f2f2f2; padding: 20px; border-radius: 8px; text-align:center;">Marzo: ${marzo:,.2f}</div>', unsafe_allow_html=True)
 
     with col4:
         abril = gastos_por_mes[gastos_por_mes['Mes'] == '2025-04']['Monto'].sum() if '2025-04' in gastos_por_mes['Mes'].values else 0
-        st.markdown(f'<div style="background-color: #f2f2f2; padding: 20px; border-radius: 8px;">Abril: ${abril:,.2f}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="background-color: #f2f2f2; padding: 20px; border-radius: 8px; text-align:center;">Abril: ${abril:,.2f}</div>', unsafe_allow_html=True)
 
     st.divider()
 
