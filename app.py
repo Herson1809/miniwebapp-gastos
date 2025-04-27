@@ -1,37 +1,54 @@
 import streamlit as st
 import pandas as pd
 
-# Título principal
-st.title('Mini WebApp de Gastos')
-st.subheader('Análisis Automático de Gastos por Sucursal')
+# Configurar página
+st.set_page_config(page_title="Análisis de Gastos", page_icon="📊", layout="wide")
+
+# Encabezado principal elegante
+st.markdown("""
+    <h1 style='text-align: center; color: #4CAF50;'>📊 Mini WebApp de Gastos</h1>
+    <h3 style='text-align: center;'>Análisis Automático de Gastos por Sucursal</h3>
+""", unsafe_allow_html=True)
+
+st.divider()
 
 # Subir archivo Excel
-uploaded_file = st.file_uploader("Sube tu archivo Excel de Gastos", type=["xlsx"])
+uploaded_file = st.file_uploader("**Sube tu archivo Excel de Gastos**", type=["xlsx"])
 
 if uploaded_file is not None:
     # Leer el Excel
     df = pd.read_excel(uploaded_file)
 
-    st.success('Archivo cargado exitosamente ✅')
+    st.success('✅ Archivo cargado exitosamente')
 
     # Mostrar datos cargados
-    if st.checkbox('Mostrar datos cargados'):
-        st.dataframe(df)
+    if st.checkbox('📄 Mostrar datos cargados'):
+        st.dataframe(df, use_container_width=True)
 
-    # Resumen general
-    st.header('Resumen General 📊')
-    total_gastos = df['Monto'].sum()
-    num_sucursales = df['Sucursal'].nunique()
+    st.divider()
 
-    st.metric(label="Total de Gastos", value=f"${total_gastos:,.2f}")
-    st.metric(label="Número de Sucursales", value=num_sucursales)
+    # Resumen general con columnas
+    st.subheader('📈 Resumen General')
+    col1, col2 = st.columns(2)
+
+    with col1:
+        total_gastos = df['Monto'].sum()
+        st.metric(label="Total de Gastos", value=f"${total_gastos:,.2f}")
+
+    with col2:
+        num_sucursales = df['Sucursal'].nunique()
+        st.metric(label="Número de Sucursales", value=num_sucursales)
+
+    st.divider()
 
     # Gastos críticos (mayores a $5,000)
-    st.header('Gastos Críticos por Sucursal 🚨')
+    st.subheader('🚨 Gastos Críticos por Sucursal')
     gastos_criticos = df[df['Monto'] >= 5000]
     gastos_criticos_ordenados = gastos_criticos.sort_values(by=['Sucursal', 'Monto'], ascending=[True, False])
 
-    st.dataframe(gastos_criticos_ordenados)
+    st.dataframe(gastos_criticos_ordenados, use_container_width=True)
+
+    st.divider()
 
     # Descargar reporte
     def convertir_excel(df):
@@ -42,11 +59,11 @@ if uploaded_file is not None:
         return output.getvalue()
 
     st.download_button(
-        label="Descargar Reporte de Gastos Críticos",
+        label="💾 Descargar Reporte de Gastos Críticos",
         data=convertir_excel(gastos_criticos_ordenados),
         file_name='Reporte_Gastos_Criticos.xlsx',
-        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        use_container_width=True
     )
 else:
-    st.info('Por favor sube un archivo Excel para iniciar.')
-
+    st.info('📝 Por favor sube un archivo Excel para iniciar.')
