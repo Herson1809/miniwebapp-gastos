@@ -33,6 +33,10 @@ st.markdown("""
     <h3 style='text-align: center;'>Análisis Automático de Gastos por Sucursal</h3>
 """, unsafe_allow_html=True)
 
+# Agregar tu nombre
+st.write('¡Bienvenido a la aplicación! Tu nombre es:')
+st.write('**Herson Stan**')  # Aquí colocas tu nombre
+
 st.divider()
 
 # Subir archivo Excel
