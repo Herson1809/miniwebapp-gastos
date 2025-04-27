@@ -2,22 +2,13 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# --- Pantalla de acceso (contraseña fija) ---
+# Función de seguridad para contraseña
 def password_gate():
-    st.markdown("## 🔒 Acceso restringido")
-    
-    # Aquí está tu clave fija
-    password_correcto = "Daniela300680"  # 🔥 Cambié la contraseña a la que me diste
-
-    password = st.text_input("Ingrese la contraseña:", type="password")
-    
-    if password == password_correcto:
-        st.success("Acceso concedido ✅")
+    password = st.text_input('**Ingresa la contraseña**', type='password')
+    if password == "Daniela300680":
         return True
-    elif password == "":
-        return False
     else:
-        st.error("Contraseña incorrecta ❌")
+        st.error("🚫 Contraseña incorrecta.")
         return False
 
 # Configurar página
@@ -27,7 +18,7 @@ st.set_page_config(page_title="Análisis de Gastos", page_icon="📊", layout="w
 if not password_gate():
     st.stop()
 
-# Encabezado principal elegante
+# Encabezado principal
 st.markdown("""
     <h1 style='text-align: center; color: #4CAF50;'>📊 Mini WebApp de Gastos</h1>
     <h3 style='text-align: center;'>Análisis Automático de Gastos por Sucursal</h3>
@@ -128,4 +119,54 @@ if uploaded_file is not None:
 
     st.divider()
 
-    # ---
+    # --- Auditoría de gastos sospechosos ---
+    st.subheader('🛡️ Auditoría de Gastos Sospechosos')
+
+    # Función para asignar colores de semáforo
+    def asignar_semaforo(monto):
+        if monto > 50000:
+            return '🟥 Crítico'
+        elif monto > 20000:
+            return '🟨 Moderado'
+        else:
+            return '🟩 Bajo'
+
+    df_auditoria = df.copy()
+    df_auditoria['Riesgo'] = df_auditoria['Monto'].apply(asignar_semaforo)
+
+    df_sospechosos = df_auditoria[df_auditoria['Riesgo'] != '🟩 Bajo']
+
+    if not df_sospechosos.empty:
+        st.warning(f"🚨 Se detectaron {len(df_sospechosos)} transacciones sospechosas:")
+        st.dataframe(df_sospechosos[['Sucursal', 'Monto', 'Riesgo']], use_container_width=True)
+    else:
+        st.success("✅ No se detectaron transacciones sospechosas.")
+
+    st.divider()
+
+    # --- Mostrar gastos recomendados para revisar ---
+    st.subheader('📊 Bloque de Gastos Recomendados para Revisar')
+
+    # Establecer un umbral para los gastos que se recomienda revisar
+    umbral_gasto = 1000000  # Cambiar a tu criterio, por ejemplo, 1 millón
+
+    mostrar_gastos_revisar(df, umbral_gasto)
+
+    # Descargar reporte filtrado
+    def convertir_excel(df):
+        from io import BytesIO
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False)
+        return output.getvalue()
+
+    st.download_button(
+        label="💾 Descargar Reporte Filtrado",
+        data=convertir_excel(df_sospechosos),
+        file_name='Reporte_Gastos_Filtrado.xlsx',
+        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        use_container_width=True
+    )
+
+else:
+    st.info('📝 Por favor sube un archivo Excel para iniciar.')
