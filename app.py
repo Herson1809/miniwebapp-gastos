@@ -51,10 +51,54 @@ if uploaded_file is not None:
     st.divider()
 
     # --- Resumen de gastos por mes ---
-    st.subheader('📈 Resumen General por Mes')
+    # --- Resumen de gastos por mes ---
+st.subheader('📈 Resumen General por Mes')
 
-    # Asegúrate de que la columna 'Fecha' esté en formato datetime
-    df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')  # Convertir la fecha a datetime
+# Asegúrate de que la columna 'Fecha' esté en formato datetime
+df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')  # Convertir la fecha a datetime
+
+# Convertir la fecha a formato "Año-Mes" (Ej: 2025-01, 2025-02)
+df['Mes'] = df['Fecha'].dt.strftime('%Y-%m')  # Convertir a formato "Año-Mes"
+
+# Agrupar los datos por mes y calcular el total de cada mes
+gastos_por_mes = df.groupby('Mes')['Monto'].sum().reset_index()
+
+# Mostrar los valores de cada mes en columnas
+col1, col2, col3, col4 = st.columns(4)
+
+with col1:
+    enero = gastos_por_mes[gastos_por_mes['Mes'] == '2025-01'].sum()['Monto'] if '2025-01' in gastos_por_mes['Mes'].values else 0
+    st.metric(label="Enero", value=f"${enero:,.2f}")
+
+with col2:
+    febrero = gastos_por_mes[gastos_por_mes['Mes'] == '2025-02'].sum()['Monto'] if '2025-02' in gastos_por_mes['Mes'].values else 0
+    st.metric(label="Febrero", value=f"${febrero:,.2f}")
+
+with col3:
+    marzo = gastos_por_mes[gastos_por_mes['Mes'] == '2025-03'].sum()['Monto'] if '2025-03' in gastos_por_mes['Mes'].values else 0
+    st.metric(label="Marzo", value=f"${marzo:,.2f}")
+
+with col4:
+    abril = gastos_por_mes[gastos_por_mes['Mes'] == '2025-04'].sum()['Monto'] if '2025-04' in gastos_por_mes['Mes'].values else 0
+    st.metric(label="Abril", value=f"${abril:,.2f}")
+
+# --- Gráfico de Torta: Distribución de los gastos por categoría ---
+st.subheader('🍰 Distribución de Gastos por Categoría')
+
+# Agrupar los datos por categoría y calcular el total de cada una
+gastos_por_categoria = df.groupby('Categoria_Limpia')['Monto'].sum().reset_index()
+
+# Crear el gráfico de torta (pastel)
+fig_pastel = px.pie(
+    gastos_por_categoria,
+    names='Categoria_Limpia',
+    values='Monto',
+    title='Distribución de Gastos por Categoría',
+    labels={'Monto': 'Monto Total', 'Categoria_Limpia': 'Categoría'},
+    hole=0.3  # Hace que el gráfico tenga el "hueco" central (donut)
+)
+
+st.plotly_chart(fig_pastel, use_container_width=True)
 
     # Agrupar los datos por mes y calcular el total de cada mes
     gastos_por_mes = df.groupby(df['Fecha'].dt.to_period('M'))['Monto'].sum().reset_index()
