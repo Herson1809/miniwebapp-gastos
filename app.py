@@ -2,12 +2,12 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# --- Pantalla de acceso (contraseña simple editable) ---
+# --- Pantalla de acceso (contraseña fija) ---
 def password_gate():
     st.markdown("## 🔒 Acceso restringido")
     
-    # CONTRASEÑA ACTUAL --> cámbiala aquí si quieres
-    password_correcto = "Daniela300680"  # 🔥 Cambia aquí tu contraseña personal
+    # Aquí está tu clave fija
+    password_correcto = "Daniela300680"  # 🔥 Cambié la contraseña a la que me diste
 
     password = st.text_input("Ingrese la contraseña:", type="password")
     
@@ -62,46 +62,66 @@ if uploaded_file is not None:
     # Agrupar los datos por mes y calcular el total de cada mes
     gastos_por_mes = df.groupby('Mes')['Monto'].sum().reset_index()
 
-    # Mostrar los valores de cada mes en columnas
+    # Mostrar los valores de cada mes en columnas con fondo de color claro
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
         enero = gastos_por_mes[gastos_por_mes['Mes'] == '2025-01'].sum()['Monto'] if '2025-01' in gastos_por_mes['Mes'].values else 0
-        st.metric(label="Enero", value=f"${enero:,.2f}")
+        st.markdown(f'<div style="background-color: #f2f2f2; padding: 20px; border-radius: 8px;">Enero: ${enero:,.2f}</div>', unsafe_allow_html=True)
 
     with col2:
         febrero = gastos_por_mes[gastos_por_mes['Mes'] == '2025-02'].sum()['Monto'] if '2025-02' in gastos_por_mes['Mes'].values else 0
-        st.metric(label="Febrero", value=f"${febrero:,.2f}")
+        st.markdown(f'<div style="background-color: #f2f2f2; padding: 20px; border-radius: 8px;">Febrero: ${febrero:,.2f}</div>', unsafe_allow_html=True)
 
     with col3:
         marzo = gastos_por_mes[gastos_por_mes['Mes'] == '2025-03'].sum()['Monto'] if '2025-03' in gastos_por_mes['Mes'].values else 0
-        st.metric(label="Marzo", value=f"${marzo:,.2f}")
+        st.markdown(f'<div style="background-color: #f2f2f2; padding: 20px; border-radius: 8px;">Marzo: ${marzo:,.2f}</div>', unsafe_allow_html=True)
 
     with col4:
         abril = gastos_por_mes[gastos_por_mes['Mes'] == '2025-04'].sum()['Monto'] if '2025-04' in gastos_por_mes['Mes'].values else 0
-        st.metric(label="Abril", value=f"${abril:,.2f}")
+        st.markdown(f'<div style="background-color: #f2f2f2; padding: 20px; border-radius: 8px;">Abril: ${abril:,.2f}</div>', unsafe_allow_html=True)
 
     st.divider()
 
-    # --- Gráfico de Barras: Top 10 Sucursales ---
-    st.subheader('📊 Top 10 Sucursales por Monto de Gastos')
+    # --- Gráfico de Barras: Gastos por mes ---
+    st.subheader('📊 Gastos por Mes')
 
-    top_sucursales = df.groupby('Sucursal')['Monto'].sum().sort_values(ascending=False).head(10).reset_index()
-
-    fig = px.bar(
-        top_sucursales,
-        x='Sucursal',
+    # Crear un gráfico de barras mostrando la evolución de los gastos mes a mes
+    fig_barras = px.bar(
+        gastos_por_mes,
+        x='Mes',
         y='Monto',
-        title='Top 10 Sucursales con Mayor Monto de Gastos',
-        labels={'Monto': 'Monto Total', 'Sucursal': 'Sucursal'},
+        title='Gastos Totales por Mes',
+        labels={'Monto': 'Monto Total', 'Mes': 'Mes'},
+        color='Monto',
         text_auto=True
     )
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig_barras, use_container_width=True)
 
     st.divider()
 
-    # --- Sección de Auditoría Automática ---
+    # --- Gráfico de Torta: Distribución de los gastos por categoría ---
+    st.subheader('🍰 Distribución de Gastos por Categoría')
+
+    # Agrupar los datos por categoría y calcular el total de cada una
+    gastos_por_categoria = df.groupby('Categoria_Limpia')['Monto'].sum().reset_index()
+
+    # Crear el gráfico de torta (pastel)
+    fig_pastel = px.pie(
+        gastos_por_categoria,
+        names='Categoria_Limpia',
+        values='Monto',
+        title='Distribución de Gastos por Categoría',
+        labels={'Monto': 'Monto Total', 'Categoria_Limpia': 'Categoría'},
+        hole=0.3  # Hace que el gráfico tenga el "hueco" central (donut)
+    )
+
+    st.plotly_chart(fig_pastel, use_container_width=True)
+
+    st.divider()
+
+    # --- Auditoría de gastos sospechosos ---
     st.subheader('🛡️ Auditoría de Gastos Sospechosos')
 
     # Función para asignar colores de semáforo
@@ -126,8 +146,22 @@ if uploaded_file is not None:
 
     st.divider()
 
-    # --- Gráfico de Torta: Distribución de los gastos por categoría ---
-    st.subheader('🍰 Distribución de Gastos por Categoría')
+    # Descargar reporte filtrado
+    def convertir_excel(df):
+        from io import BytesIO
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False)
+        return output.getvalue()
 
-    # Agrupar los datos por categoría y calcular el total de cada una
-    gastos_por_categoria = df.groupby('Categoria_Limpia')['Monto'].sum_
+    st.download_button(
+        label="💾 Descargar Reporte Filtrado",
+        data=convertir_excel(df_sospechosos),
+        file_name='Reporte_Gastos_Filtrado.xlsx',
+        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        use_container_width=True
+    )
+
+else:
+    st.info('📝 Por favor sube un archivo Excel para iniciar.')
+
