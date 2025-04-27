@@ -97,6 +97,13 @@ if uploaded_file is not None:
         text_auto=True
     )
 
+    # Corregir la visualización para que se muestren los meses correctamente
+    fig_barras.update_layout(
+        xaxis_tickmode='array',
+        xaxis_tickvals=gastos_por_mes['Mes'],
+        xaxis_ticktext=gastos_por_mes['Mes']
+    )
+
     st.plotly_chart(fig_barras, use_container_width=True)
 
     st.divider()
