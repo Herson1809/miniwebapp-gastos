@@ -1,75 +1,58 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 
-# Clave fija
-clave = "Daniela300680"
-
-# Función para verificar la clave
-def verificar_clave():
-    clave_ingresada = st.text_input("Introduce la clave para continuar", type="password")
-    if clave_ingresada != clave:
-        st.error("¡Clave incorrecta! No tienes acceso.")
+# Función para controlar el acceso con una clave
+def acceso_restringido():
+    password = st.text_input("Ingrese la contraseña:", type="password")
+    if password == "tu_clave_secreta":  # Cambia esto a tu clave
+        st.success("Acceso concedido")
+        return True
+    elif password:
+        st.error("Contraseña incorrecta")
         return False
-    return True
+    return False
 
-# Verificar clave antes de mostrar la aplicación
-if not verificar_clave():
-    st.stop()
+# Si el acceso es concedido, se permite cargar los datos
+if acceso_restringido():
+    st.title("Mini webApp de Gastos - Herson Stan")
 
-# Título de la aplicación
-st.title("Mini WebApp de Gastos - Herson Stan")
+    # Cargar archivo Excel
+    uploaded_file = st.file_uploader("Cargar archivo de gastos en formato Excel", type=["xlsx"])
+    if uploaded_file is not None:
+        df = pd.read_excel(uploaded_file)
 
-# Mostrar imagen (ajusta la ruta de la imagen)
-st.image("ruta/a/tu/imagen.png", caption="Tu imagen", use_column_width=True)
+        # Mostrar los primeros datos cargados
+        st.write("Datos cargados:")
+        st.write(df.head())
 
-# Cargar archivo
-uploaded_file = st.file_uploader("Cargar archivo Excel", type=["xlsx"])
-if uploaded_file is not None:
-    # Cargar datos de Excel
-    df = pd.read_excel(uploaded_file, sheet_name='Hoja1')  # Ajusta 'Hoja1' según tu archivo
+        # Mostrar resumen de gastos por mes
+        st.subheader("Resumen General por Mes")
+        resumen_mes = df.groupby('MES')['Monto'].sum()
+        st.write(resumen_mes)
 
-    # Mostrar datos cargados
-    if st.checkbox('Mostrar datos cargados'):
-        st.write(df)
+        # Crear un gráfico para el resumen de gastos
+        st.subheader("Gráfico de Gastos por Mes")
+        fig, ax = plt.subplots()
+        resumen_mes.plot(kind="bar", ax=ax)
+        ax.set_xlabel("Mes")
+        ax.set_ylabel("Monto")
+        ax.set_title("Gastos por Mes")
+        st.pyplot(fig)
 
-    # Resumen general por mes
-    st.subheader("Resumen General por Mes")
-    resumen_mes = df.groupby(df['Fecha'].dt.to_period('M'))['Monto'].sum().reset_index()
-    for index, row in resumen_mes.iterrows():
-        st.write(f"{row['Fecha']}: ${row['Monto']:,.2f}")
+        # Mostrar lista de los 10 gastos más críticos (por ejemplo, los más altos)
+        st.subheader("Los 10 Gastos Más Críticos")
+        top_gastos = df.nlargest(10, 'Monto')
+        st.write(top_gastos[['Categoria_Limpia', 'Monto']])
 
-    # Gastos por mes
-    st.subheader("Gastos por Mes")
-    df['Mes'] = df['Fecha'].dt.month
-    gastos_mes = df.groupby('Mes')['Monto'].sum()
-    st.write(gastos_mes)
+        # También puedes mostrar un gráfico de estos 10 gastos
+        st.subheader("Gráfico de los 10 Gastos Más Críticos")
+        fig2, ax2 = plt.subplots()
+        top_gastos.plot(kind="bar", x="Categoria_Limpia", y="Monto", ax=ax2)
+        ax2.set_xlabel("Categoría")
+        ax2.set_ylabel("Monto")
+        ax2.set_title("Top 10 Gastos Críticos")
+        st.pyplot(fig2)
 
-    # Gráfica de gastos por mes
-    st.subheader("Gráfico de Gastos por Mes")
-    fig, ax = plt.subplots()
-    ax.bar(gastos_mes.index, gastos_mes.values)
-    ax.set_xlabel('Mes')
-    ax.set_ylabel('Monto Total')
-    ax.set_title('Gastos Totales por Mes')
-    st.pyplot(fig)
-
-    # Semáforo de alertas (ficticio, ejemplo)
-    st.subheader("Semáforo de Alertas")
-    umbral_gasto = 500000000  # Umbral de gasto
-    if resumen_mes['Monto'].iloc[-1] > umbral_gasto:
-        st.markdown('<p style="color:red;">🚨 ¡ALERTA! El gasto del último mes supera el umbral 🚨</p>', unsafe_allow_html=True)
     else:
-        st.markdown('<p style="color:green;">✅ El gasto está dentro del rango seguro ✅</p>', unsafe_allow_html=True)
-
-    # Lista de los gastos críticos
-    st.subheader("Gastos Críticos a Revisar")
-    umbral_critico = 10000000  # Umbral para considerar un gasto como crítico
-    gastos_criticos = df[df['Monto'] > umbral_critico]
-    gastos_criticos_lista = gastos_criticos[['Fecha', 'Categoria_Limpia', 'Monto']]
-    
-    if not gastos_criticos_lista.empty:
-        st.write(gastos_criticos_lista)
-    else:
-        st.write("No hay gastos críticos por encima del umbral.")
+        st.info("Por favor, cargue un archivo para comenzar.")
